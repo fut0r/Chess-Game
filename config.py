@@ -243,15 +243,13 @@ GAME_MODES = [
 VARIANTS = ["Standard", "Chess960"]
 
 SERVERS = {
-    "London": {"host": "localhost", "port": 8765, "flag": "GB"},
-    "Amsterdam": {"host": "localhost", "port": 8766, "flag": "NL"},
-    "Dubai": {"host": "localhost", "port": 8767, "flag": "AE"},
-    "Riyadh": {"host": "localhost", "port": 8768, "flag": "SA"},
+    "Frankfurt": {"host": "18.196.205.59", "port": 8765, "flag": "DE"},
+    "Local": {"host": "localhost", "port": 8765, "flag": "SA"},
 }
 
-DEFAULT_SERVER = "London"
+DEFAULT_SERVER = "Frankfurt"
 
 # ---------------------------------------------------------------------------
 # Backend API
 # ---------------------------------------------------------------------------
-BACKEND_API_URL = "http://localhost:8000"
+BACKEND_API_URL = "http://18.196.205.59:8000"
