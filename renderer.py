@@ -58,7 +58,8 @@ class MoveAnimation:
         elapsed = (time.time() - self.start_time) * 1000
         self.progress = min(1.0, elapsed / self.duration_ms)
         t = self.progress
-        self.progress_eased = 1.0 - (1.0 - t) ** 3
+        # Quartic Ease-Out for a premium, snappy glide
+        self.progress_eased = 1.0 - (1.0 - t) ** 4
         if self.progress >= 1.0:
             self.active = False
             return False
@@ -75,6 +76,11 @@ class MoveAnimation:
     def from_sq_board(self):
         """Get the from square in board coords."""
         return self.from_sq
+
+    @property
+    def to_sq_board(self):
+        """Get the to square in board coords."""
+        return self.to_sq
 
 
 class Renderer:
@@ -125,7 +131,7 @@ class Renderer:
                 self.fonts[key] = pygame.font.SysFont('Arial', 20)
 
     def _load_pieces(self):
-        """Load raw piece images from disk."""
+        """Load raw piece images from disk and trim them."""
         piece_chars = ['K', 'Q', 'R', 'B', 'N', 'P', 'k', 'q', 'r', 'b', 'n', 'p']
         for pc in piece_chars:
             img_name = get_piece_image_name(pc)
@@ -134,16 +140,37 @@ class Renderer:
                 if os.path.exists(path):
                     try:
                         img = pygame.image.load(path).convert_alpha()
+                        # Smart-trim transparency to ensure perfect centering
+                        img = self._trim_transparency(img)
                         self.piece_images_raw[pc] = img
                     except Exception:
                         continue
         self._scale_pieces()
 
+    def _trim_transparency(self, surface):
+        """Helper to trim transparent borders from a surface."""
+        mask = pygame.mask.from_surface(surface)
+        rects = mask.get_bounding_rects()
+        if not rects: return surface
+        # Find the bounding box of all non-transparent pixels
+        min_x, min_y = surface.get_width(), surface.get_height()
+        max_x, max_y = 0, 0
+        for r in rects:
+            min_x = min(min_x, r.x); min_y = min(min_y, r.y)
+            max_x = max(max_x, r.x + r.width); max_y = max(max_y, r.y + r.height)
+        
+        trimmed = pygame.Surface((max_x - min_x, max_y - min_y), pygame.SRCALPHA)
+        trimmed.blit(surface, (0, 0), (min_x, min_y, max_x - min_x, max_y - min_y))
+        return trimmed
+
     def _scale_pieces(self):
-        """Scale pieces to current SQUARE_SIZE."""
-        piece_size = int(cfg.SQUARE_SIZE * 0.85)
+        """Scale pieces to fit SQUARE_SIZE while maintaining aspect ratio."""
+        target_h = int(cfg.SQUARE_SIZE * 0.88)
         for pc, raw in self.piece_images_raw.items():
-            self.piece_images[pc] = pygame.transform.smoothscale(raw, (piece_size, piece_size))
+            rw, rh = raw.get_size()
+            ratio = target_h / rh
+            new_w = int(rw * ratio)
+            self.piece_images[pc] = pygame.transform.smoothscale(raw, (new_w, target_h))
 
     def _load_background(self):
         """Load the raw background image."""

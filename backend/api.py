@@ -187,17 +187,19 @@ async def websocket_endpoint(websocket: WebSocket, token: str, variant: str = "S
                 await manager.broadcast_game_message(game_id, data, exclude_user_id=user["id"])
 
             elif msg_type == "resign":
+                winner = "black" if manager.active_games[game_id]["white"]["id"] == user["id"] else "white"
                 await manager.broadcast_game_message(game_id, {
                     "type": "resign",
-                    "winner": "black" if manager.active_games[game_id]["white"]["id"] == user["id"] else "white"
+                    "winner": winner
                 }, exclude_user_id=user["id"])
                 
-                # Update ELO (Simple calculation)
-                _handle_game_over(game_id, user["id"], True)
+                _handle_game_over(game_id, winner, "resign")
                 
             elif msg_type == "game_over":
                 # Triggered by checkmate/stalemate
-                _handle_game_over(game_id, user["id"], False)
+                winner = data.get("winner") # 'white', 'black', or 'draw'
+                reason = data.get("reason", "checkmate")
+                _handle_game_over(game_id, winner, reason)
                 
             elif msg_type == "chat":
                 await manager.broadcast_game_message(game_id, {
@@ -209,7 +211,11 @@ async def websocket_endpoint(websocket: WebSocket, token: str, variant: str = "S
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-def _handle_game_over(game_id, loser_id, resigned):
+def _handle_game_over(game_id, winner, reason):
+    """
+    Handle the end of a game, calculate Elo changes, and update DB.
+    winner: 'white', 'black', or 'draw'
+    """
     if game_id not in manager.active_games:
         return
         
@@ -217,29 +223,54 @@ def _handle_game_over(game_id, loser_id, resigned):
     white = game["white"]
     black = game["black"]
     
-    white_won = loser_id == black["id"]
+    # 1. Elo Math
+    Kw = 32 if white.get("games_played", 0) > 20 else 40 # Higher K for new players
+    Kb = 32 if black.get("games_played", 0) > 20 else 40
     
-    # Simple Elo
-    K = 32
     Rw = 10 ** (white.get("elo_rating", 1200) / 400)
     Rb = 10 ** (black.get("elo_rating", 1200) / 400)
+    
     Ew = Rw / (Rw + Rb)
     Eb = Rb / (Rw + Rb)
     
-    Sw = 1 if white_won else 0
-    Sb = 0 if white_won else 1
+    if winner == 'white':
+        Sw, Sb = 1, 0
+    elif winner == 'black':
+        Sw, Sb = 0, 1
+    else: # draw
+        Sw, Sb = 0.5, 0.5
     
-    new_white_elo = int(white.get("elo_rating", 1200) + K * (Sw - Ew))
-    new_black_elo = int(black.get("elo_rating", 1200) + K * (Sb - Eb))
+    new_white_elo = int(white.get("elo_rating", 1200) + Kw * (Sw - Ew))
+    new_black_elo = int(black.get("elo_rating", 1200) + Kb * (Sb - Eb))
     
-    # Update DB
-    db.update_user_stats(white["id"], games_played=1, games_won=Sw, games_drawn=0, new_elo=new_white_elo)
-    db.update_user_stats(black["id"], games_played=1, games_won=Sb, games_drawn=0, new_elo=new_black_elo)
+    # 2. Update Database
+    # Stats for White
+    db.update_user_stats(
+        white["id"], 
+        games_played=1, 
+        games_won=1 if winner == 'white' else 0, 
+        games_drawn=1 if winner == 'draw' else 0, 
+        new_elo=new_white_elo
+    )
+    # Stats for Black
+    db.update_user_stats(
+        black["id"], 
+        games_played=1, 
+        games_won=1 if winner == 'black' else 0, 
+        games_drawn=1 if winner == 'draw' else 0, 
+        new_elo=new_black_elo
+    )
     
-    # Record game
-    db.record_game(white["id"], black["id"], "resign" if resigned else "checkmate", len(game["moves"]), "online_game", white_won)
+    # 3. Record Game History
+    db.record_game(
+        white["id"], black["id"], 
+        winner,  # 'white', 'black', 'draw'
+        reason,  # 'checkmate', 'resign', 'timeout', etc.
+        len(game["moves"]), 
+        "online_game"
+    )
     
-    # Cleanup memory
+    # 4. Cleanup
     del manager.active_games[game_id]
     manager.user_to_game.pop(white["id"], None)
     manager.user_to_game.pop(black["id"], None)

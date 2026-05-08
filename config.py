@@ -212,7 +212,7 @@ RANKS = "87654321"
 ANIMATION_SPEED = 12  # pixels per frame for piece movement
 FADE_SPEED = 8  # alpha change per frame for transitions
 SPLASH_DURATION = 3000  # milliseconds
-AI_MOVE_ANIMATION_MS = 300  # duration of AI move slide animation
+AI_MOVE_ANIMATION_MS = 450  # duration of AI move slide animation (slower = more premium)
 
 # ---------------------------------------------------------------------------
 # Resolution & Display
