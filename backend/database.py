@@ -11,10 +11,10 @@ import json
 
 # Database config — override with environment variables
 DB_HOST = os.getenv("CHESS_DB_HOST", "localhost")
-DB_PORT = os.getenv("CHESS_DB_PORT", "3000")
+DB_PORT = os.getenv("CHESS_DB_PORT", "5432")
 DB_NAME = os.getenv("CHESS_DB_NAME", "chess_game")
-DB_USER = os.getenv("CHESS_DB_USER", "postgres")
-DB_PASS = os.getenv("CHESS_DB_PASS", "1234")
+DB_USER = os.getenv("CHESS_DB_USER", "chess_user")
+DB_PASS = os.getenv("CHESS_DB_PASS", "chess_pass")
 
 CONNINFO = f"host={DB_HOST} port={DB_PORT} dbname={DB_NAME} user={DB_USER} password={DB_PASS} connect_timeout=3"
 

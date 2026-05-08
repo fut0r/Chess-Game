@@ -2,10 +2,10 @@
 import psycopg
 
 conn = psycopg.connect(
-    "host=localhost port=3000 user=postgres password=1234 dbname=postgres connect_timeout=3"
+    "host=localhost port=5432 user=chess_user password=chess_pass dbname=postgres connect_timeout=3"
 )
 conn.autocommit = True
-print("Connected to PostgreSQL on port 3000!")
+print("Connected to PostgreSQL on port 5432!")
 
 cur = conn.execute("SELECT 1 FROM pg_database WHERE datname = 'chess_game'")
 if not cur.fetchone():
