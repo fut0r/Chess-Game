@@ -184,6 +184,7 @@ class ChessGame:
                 self.ui.transition_to("setup")
             elif "online" in actions and actions["online"].collidepoint(mouse_pos):
                 self.sound.play('ui_click')
+                self.auth.fetch_leaderboard()  # Load ranking immediately
                 self.ui.transition_to("online_menu")
             elif "learn" in actions and actions["learn"].collidepoint(mouse_pos):
                 self.sound.play('ui_click')
@@ -316,7 +317,7 @@ class ChessGame:
             return
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            rects = self.ui.draw_online_menu(mouse_pos)
+            rects = self.ui.draw_online_menu(mouse_pos, self.auth)
 
             # Game variant selection
             from config import VARIANTS
@@ -339,7 +340,9 @@ class ChessGame:
                     return
                     
                 self.ui.online_status = "Searching for opponent..."
-                self.network.connect("localhost", 8000, self.ui.auth_token, self.ui.game_variant)
+                from config import SERVERS, DEFAULT_SERVER
+                srv = SERVERS.get(DEFAULT_SERVER, SERVERS["Frankfurt"])
+                self.network.connect(srv["host"], 8000, self.ui.auth_token, self.ui.game_variant)
                 return
 
             if "create_room" in rects and rects["create_room"].collidepoint(mouse_pos):
@@ -1035,7 +1038,7 @@ class ChessGame:
             self.ui.draw_setup_screen(mouse_pos)
 
         elif phase == "online_menu":
-            self.ui.draw_online_menu(mouse_pos)
+            self.ui.draw_online_menu(mouse_pos, self.auth)
 
         elif phase == "achievements":
             self.ui.draw_achievements_screen(mouse_pos, self.tracker)

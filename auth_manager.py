@@ -13,6 +13,7 @@ class AuthManager:
     def __init__(self, ui_manager, achievement_tracker):
         self.ui = ui_manager
         self.tracker = achievement_tracker
+        self.leaderboard_data = []  # List of (rank, username, display_name, elo)
         
     def load_token(self):
         """Load auth token from disk and auto-login."""
@@ -125,3 +126,26 @@ class AuthManager:
                 print(f"Error syncing achievements: {e}")
                 
         threading.Thread(target=sync, daemon=True).start()
+
+    def fetch_leaderboard(self):
+        """Fetch global ranking from backend."""
+        def fetch():
+            try:
+                resp = requests.get(f"{BACKEND_API_URL}/leaderboard", timeout=5)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    # data is a list of lists: [id, username, display_name, elo, games_played, games_won]
+                    processed = []
+                    for i, row in enumerate(data):
+                        processed.append({
+                            "rank": i + 1,
+                            "username": row[1],
+                            "display_name": row[2] or row[1],
+                            "elo": row[3],
+                            "wins": row[5]
+                        })
+                    self.leaderboard_data = processed
+            except Exception as e:
+                print(f"Error fetching leaderboard: {e}")
+        
+        threading.Thread(target=fetch, daemon=True).start()

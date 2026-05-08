@@ -12,7 +12,7 @@ from config import (
     COLOR_BG_DARK, COLOR_GOLD, COLOR_GOLD_DIM, COLOR_GOLD_BRIGHT,
     COLOR_TEXT_PRIMARY, COLOR_TEXT_SECONDARY, COLOR_TEXT_DIM,
     COLOR_BUTTON, COLOR_BUTTON_HOVER, COLOR_BUTTON_ACTIVE, COLOR_BORDER,
-    COLOR_PANEL_BG, COLOR_OVERLAY,
+    COLOR_PANEL_BG, COLOR_OVERLAY, COLOR_SILVER, COLOR_BRONZE,
     BOARD_THEMES, TIME_CONTROLS, AI_DIFFICULTIES,
     RESOLUTIONS, DISPLAY_MODES, SERVERS,
     MODE_VS_AI, MODE_VS_PLAYER, MODE_ONLINE,
@@ -310,7 +310,7 @@ class UIManager:
     # -------------------------------------------------------------------
     # ONLINE MENU
     # -------------------------------------------------------------------
-    def draw_online_menu(self, mouse_pos):
+    def draw_online_menu(self, mouse_pos, auth_manager=None):
         W, H = self._size()
         self.renderer.draw_background()
 
@@ -318,28 +318,79 @@ class UIManager:
         self.screen.blit(title, ((W - title.get_width()) // 2, 30))
 
         rects = {}
-        col_w = min(400, int(W * 0.3))
-        left_x = (W - col_w) // 2
+        
+        # Left side: Matchmaking Setup
+        left_w = min(360, int(W * 0.3))
+        lx = (W // 2) - left_w - 40
         btn_h, gap = 44, 10
-        y = 80
+        y = 100
 
-        self._section("GAME VARIANT", left_x, y); y += 30
+        self._section("GAME VARIANT", lx, y); y += 30
         from config import VARIANTS
         for v in VARIANTS:
-            r = pygame.Rect(left_x, y, col_w, btn_h)
+            r = pygame.Rect(lx, y, left_w, btn_h)
             self.renderer.draw_button(v, r, hover=r.collidepoint(mouse_pos),
                                        active=(v == self.game_variant), small=True)
             rects[f"variant_{v}"] = r; y += btn_h + gap
-        y += 20
-
+        
+        # Bottom of left side: Status
         if self.online_status:
-            st = self.renderer.fonts['body'].render(self.online_status, True, COLOR_GOLD)
-            self.screen.blit(st, ((W - st.get_width()) // 2, H - 130))
+            st_color = COLOR_GOLD if "Error" not in self.online_status else (255, 80, 80)
+            st = self.renderer.fonts['body_small'].render(self.online_status, True, st_color)
+            self.screen.blit(st, (lx, H - 150))
 
+        # Right side: Global Leaderboard
+        right_w = min(480, int(W * 0.45))
+        rx = (W // 2) + 20
+        ry = 100
+        
+        self._section("GLOBAL RANKING", rx, ry); ry += 35
+        
+        # Leaderboard Panel
+        panel_h = H - 250
+        self.renderer.draw_panel_background(rx, ry, right_w, panel_h, 200)
+        pygame.draw.rect(self.screen, COLOR_BORDER, (rx, ry, right_w, panel_h), 1)
+        
+        if auth_manager and auth_manager.leaderboard_data:
+            entry_h = 42
+            iy = ry + 10
+            for i, user in enumerate(auth_manager.leaderboard_data[:10]):
+                if iy + entry_h > ry + panel_h: break
+                
+                # Rank circle
+                rank = user["rank"]
+                circle_c = COLOR_TEXT_DIM
+                if rank == 1: circle_c = COLOR_GOLD
+                elif rank == 2: circle_c = COLOR_SILVER
+                elif rank == 3: circle_c = COLOR_BRONZE
+                
+                cx, cy = rx + 25, iy + entry_h // 2
+                if rank <= 3:
+                    pygame.draw.circle(self.screen, circle_c, (cx, cy), 14, 2)
+                
+                rank_text = self.renderer.fonts['body_small'].render(str(rank), True, circle_c)
+                self.screen.blit(rank_text, (cx - rank_text.get_width() // 2, cy - rank_text.get_height() // 2))
+                
+                # Name & Elo
+                name_c = COLOR_GOLD_BRIGHT if user['username'] == self.username else COLOR_TEXT_PRIMARY
+                name_surf = self.renderer.fonts['body'].render(user['display_name'], True, name_c)
+                self.screen.blit(name_surf, (rx + 55, iy + 8))
+                
+                elo_surf = self.renderer.fonts['body_small'].render(f"{user['elo']} ELO", True, COLOR_TEXT_SECONDARY)
+                self.screen.blit(elo_surf, (rx + right_w - elo_surf.get_width() - 15, iy + 10))
+                
+                iy += entry_h
+                if i < 9:
+                    pygame.draw.line(self.screen, (40, 40, 50), (rx + 15, iy), (rx + right_w - 15, iy), 1)
+        else:
+            loading = self.renderer.fonts['body_small'].render("Loading ranking...", True, COLOR_TEXT_DIM)
+            self.screen.blit(loading, (rx + (right_w - loading.get_width()) // 2, ry + panel_h // 2))
+
+        # Shared Buttons (Bottom)
         bw, bh, g = 200, 50, 20
         total = bw * 2 + g
         bx1 = (W - total) // 2
-        by = H - 70
+        by = H - 75
         back_r = pygame.Rect(bx1, by, bw, bh)
         find_r = pygame.Rect(bx1 + bw + g, by, bw, bh)
         self.renderer.draw_button("Back", back_r, hover=back_r.collidepoint(mouse_pos))
