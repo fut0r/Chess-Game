@@ -7,6 +7,7 @@ orchestrates all game phases including online play.
 import pygame
 import sys
 import threading
+import asyncio
 import config as cfg
 from config import (
     FPS, GAME_TITLE, BACKEND_API_URL,
@@ -92,8 +93,8 @@ class ChessGame:
 
         self.running = True
 
-    def run(self):
-        """Main game loop."""
+    async def run(self):
+        """Main game loop (Async for Web support)."""
         while self.running:
             dt = self.clock.tick(FPS)
             mouse_pos = pygame.mouse.get_pos()
@@ -109,9 +110,12 @@ class ChessGame:
             self._draw(mouse_pos)
 
             pygame.display.flip()
+            # Crucial for Web: give back control to the browser
+            await asyncio.sleep(0)
 
         pygame.quit()
         sys.exit()
+
 
     def _handle_event(self, event, mouse_pos):
         """Route events to the current phase handler."""
@@ -1156,4 +1160,4 @@ class ChessGame:
 
 if __name__ == "__main__":
     game = ChessGame()
-    game.run()
+    asyncio.run(game.run())
