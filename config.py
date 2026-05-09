@@ -27,6 +27,7 @@ SOUNDS_DIR = os.path.join(ASSETS_DIR, "sounds")
 FONT_ULTRALIGHT = os.path.join(FONTS_DIR, "HelveticaNeueUltraLight.otf")
 FONT_MEDIUM = os.path.join(FONTS_DIR, "HelveticaNeueMedium.otf")
 FONT_BOLD = os.path.join(FONTS_DIR, "HelveticaNeueBold.otf")
+FONT_CARVIST = os.path.join(FONTS_DIR, "TT Carvist Trial Bold.ttf")
 BACKGROUND_IMAGE = os.path.join(ASSETS_DIR, "background-game.jpg")
 
 # ---------------------------------------------------------------------------

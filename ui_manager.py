@@ -18,6 +18,7 @@ from config import (
     MODE_VS_AI, MODE_VS_PLAYER, MODE_ONLINE,
     SPLASH_DURATION, FADE_SPEED,
     DEFAULT_RESOLUTION, DEFAULT_DISPLAY_MODE, DEFAULT_SERVER,
+    FONT_CARVIST,
 )
 from achievements import ACHIEVEMENTS, CATEGORIES, RARITY_COLORS
 
@@ -71,6 +72,27 @@ class UIManager:
         self.selected_section = None  # Holds the section dict
         self.learn_scroll = 0
 
+        # Gen Z Slang System
+        self.slang_phrases = [
+            "chess is easy af",
+            "play smarter not harder",
+            "that move was mid tbh",
+            "getting that elo checkmate fr",
+            "no cap this opening is goated",
+            "opponent is tweaking rn",
+            "pawn structure is cooked",
+            "clutching the endgame btw",
+            "grandmaster energy fr fr",
+            "imagine losing lol",
+            "big brain moves only",
+            "that gambit was bussin",
+            "main character energy activated",
+            "we stay winning tbh",
+            "checkmate hits different"
+        ]
+        import random
+        self.current_slang_index = random.randint(0, len(self.slang_phrases) - 1)
+
         # Overlays
 
 
@@ -98,7 +120,13 @@ class UIManager:
                 self.fading_out = False
                 self.fading_in = True
                 self.next_phase = None
+                self.cycle_slang()
             return True
+
+    def cycle_slang(self):
+        """Randomly pick a new slang phrase."""
+        import random
+        self.current_slang_index = random.randint(0, len(self.slang_phrases) - 1)
         return False
 
     def draw_transition(self):
@@ -145,7 +173,15 @@ class UIManager:
         self.renderer.draw_background()
 
         title = self.renderer.fonts['title'].render("CHESS GAME", True, COLOR_GOLD)
-        self.screen.blit(title, ((W - title.get_width()) // 2, int(H * 0.07)))
+        tx = (W - title.get_width()) // 2
+        ty = int(H * 0.07)
+        self.screen.blit(title, (tx, ty))
+
+        # Draw Gen Z Slang angled text above title
+        phrase = self.slang_phrases[self.current_slang_index]
+        # Offset to be "up and slightly left/right" of the title center
+        slang_center = (W // 2 - 100, ty - 10)
+        self.renderer.draw_rotated_text(phrase, 'slang', 32, (0, 120, 255), slang_center, 45)
 
         lw = 180
         ly = int(H * 0.07) + title.get_height() + 8

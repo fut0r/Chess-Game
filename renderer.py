@@ -16,7 +16,7 @@ from config import (
     COLOR_CHECK, COLOR_LAST_MOVE, COLOR_SELECTED, COLOR_LEGAL_MOVE, COLOR_LEGAL_CAPTURE,
     COLOR_BUTTON, COLOR_BUTTON_HOVER, COLOR_BUTTON_ACTIVE, COLOR_PANEL_BG, COLOR_BORDER,
     COLOR_TIMER_NORMAL, COLOR_TIMER_WARNING, COLOR_TIMER_CRITICAL,
-    PIECES_DIR, FONT_ULTRALIGHT, FONT_MEDIUM, FONT_BOLD,
+    PIECES_DIR, FONT_ULTRALIGHT, FONT_MEDIUM, FONT_BOLD, FONT_CARVIST,
     BACKGROUND_IMAGE, FILES, RANKS,
 )
 from utils import board_to_pixel, get_piece_image_name, is_white_piece
@@ -97,13 +97,13 @@ class Renderer:
         self._load_fonts()
         self._load_pieces()
         self._load_background()
-
+        
     def resize(self, new_screen):
         """Handle resolution change: update screen, re-scale assets."""
         self.screen = new_screen
         self._scale_background()
         self._scale_pieces()
-
+        self._load_fonts()
     def _load_fonts(self):
         """Load all fonts."""
         try:
@@ -123,7 +123,10 @@ class Renderer:
             self.fonts['piece_symbol'] = pygame.font.Font(FONT_BOLD, 16)
             self.fonts['game_over'] = pygame.font.Font(FONT_BOLD, 42)
             self.fonts['game_over_sub'] = pygame.font.Font(FONT_ULTRALIGHT, 26)
+            self.fonts['slang'] = pygame.font.Font(FONT_CARVIST, 32)
         except Exception:
+            # Fallback if font loading fails
+            pass
             for key in ['title', 'subtitle', 'heading', 'body', 'body_small',
                          'button', 'button_small', 'timer', 'timer_small',
                          'coord', 'splash_title', 'splash_sub', 'move_notation',
@@ -488,3 +491,11 @@ class Renderer:
         self.draw_button("Play Again", pr, hover=pr.collidepoint(mp))
         self.draw_button("Main Menu", mr, hover=mr.collidepoint(mp))
         return pr, mr
+    def draw_rotated_text(self, text, font_key, size, color, center, angle):
+        """Draw rotated text centered at a position."""
+        font = self.fonts.get(font_key, self.fonts['medium']).get(size, self.fonts['medium'][24])
+        # Render lowercase as requested
+        text_surf = font.render(text.lower(), True, color)
+        rotated_surf = pygame.transform.rotate(text_surf, angle)
+        rect = rotated_surf.get_rect(center=center)
+        self.screen.blit(rotated_surf, rect)
