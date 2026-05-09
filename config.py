@@ -9,7 +9,10 @@ import sys
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-if getattr(sys, 'frozen', False):
+if sys.platform == 'emscripten':
+    RESOURCE_DIR = "."
+    DATA_DIR = "."
+elif getattr(sys, 'frozen', False):
     RESOURCE_DIR = sys._MEIPASS
     DATA_DIR = os.path.dirname(sys.executable)
 else:
