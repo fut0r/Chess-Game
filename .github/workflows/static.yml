@@ -32,6 +32,8 @@ jobs:
         run: |
           # Replace the buggy pygbag loader with our custom Master Loader
           cp index.html build/web/index.html
+          # Copy the security bypass script
+          cp coi-serviceworker.js build/web/coi-serviceworker.js
           # Copy CNAME to build folder
           echo "chess.infiniware.bid" > build/web/CNAME
 
