@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infiniware Chess - Web Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Logic Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Bar -->
+        <header>
+            <div class="logo">INFINIWARE <span>CHESS</span></div>
+            <div class="user-status" id="user-status">
+                <span id="player-name">Guest</span>
+                <button class="btn-small" onclick="showAuth()">Login</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Game Section -->
+            <div class="game-area">
+                <div class="board-container">
+                    <div id="board" class="chess-board"></div>
+                </div>
+                
+                <div class="game-controls">
+                    <div class="clocks">
+                        <div class="clock black-clock" id="black-clock">10:00</div>
+                        <div class="clock white-clock" id="white-clock">10:00</div>
+                    </div>
+                    <div class="status-bar" id="status-msg">Welcome to the Grandmaster's Board</div>
+                    <div class="action-buttons">
+                        <button onclick="newGame()">New Game</button>
+                        <button onclick="undoMove()">Undo</button>
+                        <button onclick="resign()">Resign</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="panel leaderboard">
+                    <h3>GLOBAL RANKING</h3>
+                    <div id="leaderboard-list">
+                        <div class="loading">Loading ranks...</div>
+                    </div>
+                </div>
+                
+                <div class="panel move-history">
+                    <h3>GAME HISTORY</h3>
+                    <div id="history-list"></div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="auth-title">Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-primary" onclick="handleAuth()">Submit</button>
+            <p onclick="toggleAuthMode()" id="auth-toggle">New? Register here</p>
+            <button class="btn-text" onclick="hideAuth()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="notif-container"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>
