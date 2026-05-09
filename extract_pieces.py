@@ -1,5 +1,5 @@
 """
-extract_pieces.py — Extract individual chess pieces from Chess-Pieces.svg
+extract_pieces.py &#8212; Extract individual chess pieces from Chess-Pieces.svg
 Renders full SVG with pygame, then crops each piece region to PNG.
 """
 

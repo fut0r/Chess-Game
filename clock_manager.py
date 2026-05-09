@@ -104,13 +104,13 @@ class ChessClock:
     def get_white_display(self):
         """Get formatted white time string."""
         if self.is_endless:
-            return "∞"
+            return "&#8734;"
         return format_time_precise(self.white_time) if self.white_time < 30 else format_time(self.white_time)
 
     def get_black_display(self):
         """Get formatted black time string."""
         if self.is_endless:
-            return "∞"
+            return "&#8734;"
         return format_time_precise(self.black_time) if self.black_time < 30 else format_time(self.black_time)
 
     def get_white_state(self):

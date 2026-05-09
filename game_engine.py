@@ -696,7 +696,7 @@ class GameEngine:
         if not self.move_history:
             return None
 
-        # Full state restore — it's safest to replay all moves
+        # Full state restore &#8212; it's safest to replay all moves
         moves = self.move_history[:-1]
         undone = self.move_history[-1]
         self.reset()

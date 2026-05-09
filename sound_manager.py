@@ -1,7 +1,7 @@
 """
 sound_manager.py - Sound Effects Manager
 Generates and plays chess sound effects using Pygame.
-Uses pure Python (math + array) — no numpy dependency required.
+Uses pure Python (math + array) &#8212; no numpy dependency required.
 """
 
 import pygame

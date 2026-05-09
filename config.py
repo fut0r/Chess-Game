@@ -37,7 +37,7 @@ GAME_VERSION = "0.3"
 GAME_AUTHOR = "fut0r (Zyad Mohamed)"
 
 # ---------------------------------------------------------------------------
-# Board Layout (computed — call recalculate_layout() after resolution change)
+# Board Layout (computed &#8212; call recalculate_layout() after resolution change)
 # ---------------------------------------------------------------------------
 BOARD_SIZE = 8
 SQUARE_SIZE = 80
@@ -76,7 +76,7 @@ def recalculate_layout(width, height):
 
 
 # ---------------------------------------------------------------------------
-# Colors — Premium palette
+# Colors &#8212; Premium palette
 # ---------------------------------------------------------------------------
 # Background & Overlay
 COLOR_BG_DARK = (18, 18, 22)

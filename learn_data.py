@@ -56,7 +56,7 @@ LEARN_CURRICULUM = [
                 "id": "c1_s4",
                 "title": "Rook Practice",
                 "content": (
-                    "Rooks are your heavy artillery. They move in straight lines—any number of vacant squares vertically or horizontally.\n\n"
+                    "Rooks are your heavy artillery. They move in straight lines&#8212;any number of vacant squares vertically or horizontally.\n\n"
                     "In the endgame, a Rook is incredibly powerful. Let's practice a simple straight-line capture."
                 ),
                 "challenge_fen": "8/8/8/8/8/8/8/R6p w - - 0 1",
@@ -86,7 +86,7 @@ LEARN_CURRICULUM = [
                 "title": "En Passant",
                 "content": (
                     "The most misunderstood rule in chess! 'En Passant' is French for 'in passing'.\n\n"
-                    "If an enemy pawn moves forward TWO squares from its starting position and lands exactly next to your pawn, you have the option—on the VERY NEXT TURN ONLY—to capture it as if it had only moved one square."
+                    "If an enemy pawn moves forward TWO squares from its starting position and lands exactly next to your pawn, you have the option&#8212;on the VERY NEXT TURN ONLY&#8212;to capture it as if it had only moved one square."
                 ),
                 "challenge_fen": "8/8/8/3pP3/8/8/8/8 w - d6 0 1",
                 "expected_moves": ["e5d6"],

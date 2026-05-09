@@ -9,7 +9,7 @@ from psycopg.rows import dict_row
 import os
 import json
 
-# Database config — override with environment variables
+# Database config &#8212; override with environment variables
 DB_HOST = os.getenv("CHESS_DB_HOST", "localhost")
 DB_PORT = os.getenv("CHESS_DB_PORT", "5432")
 DB_NAME = os.getenv("CHESS_DB_NAME", "chess_game")

@@ -193,7 +193,7 @@ class UIManager:
         btn_h, gap = 40, 8
         y = 75
 
-        # Left column — Display
+        # Left column &#8212; Display
         self._section("DISPLAY", col1_x, y); y += 28
         for rn in RESOLUTIONS:
             r = pygame.Rect(col1_x, y, col_w, btn_h)
@@ -208,7 +208,7 @@ class UIManager:
                                        active=(mode == self.display_mode), small=True)
             rects[f"dmode_{mode}"] = r; y += btn_h + gap
 
-        # Right column — Theme & Audio
+        # Right column &#8212; Theme & Audio
         y = 75
         self._section("BOARD THEME", col2_x, y); y += 28
         for tn in BOARD_THEMES:
@@ -256,7 +256,7 @@ class UIManager:
         col2_x = W // 2 + 20
         btn_h, gap = 40, 8
 
-        # Left — Time Control
+        # Left &#8212; Time Control
         y = 80
         self._section("TIME CONTROL", col1_x, y); y += 30
         for tc in TIME_CONTROLS:
@@ -265,7 +265,7 @@ class UIManager:
                                        active=(tc == self.time_control), small=True)
             rects[f"tc_{tc}"] = r; y += btn_h + gap
 
-        # Right — Variant & AI Difficulty
+        # Right &#8212; Variant & AI Difficulty
         yr = 80
         from config import MODE_VS_AI, VARIANTS
         self._section("GAME VARIANT", col2_x, yr); yr += 30
@@ -719,7 +719,7 @@ class UIManager:
             for section in chapter['sections']:
                 is_learned = section['id'] in learned
                 color = COLOR_GOLD_BRIGHT if is_learned else COLOR_TEXT_SECONDARY
-                icon = "☑" if is_learned else "☐"
+                icon = "&#9745;" if is_learned else "&#9744;"
 
                 rect = pygame.Rect(px + 40, y_offset, pw - 80, 40)
                 if rect.colliderect(clip_rect):

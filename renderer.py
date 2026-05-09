@@ -414,7 +414,7 @@ class Renderer:
         self.screen.blit(self.fonts['body'].render(s, True, c), (x, y_pos))
 
     def draw_button(self, text, rect, hover=False, active=False, small=False):
-        """Draw a styled button — sharp corners."""
+        """Draw a styled button &#8212; sharp corners."""
         color = COLOR_BUTTON_ACTIVE if active else (COLOR_BUTTON_HOVER if hover else COLOR_BUTTON)
         text_color = COLOR_BG_DARK if active else COLOR_TEXT_PRIMARY
         pygame.draw.rect(self.screen, color, rect)

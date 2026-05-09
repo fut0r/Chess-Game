@@ -1,5 +1,5 @@
 """
-main.py - Chess Game — Entry Point
+main.py - Chess Game \u2014 Entry Point
 Initializes Pygame, manages the game loop, handles events, and
 orchestrates all game phases including online play.
 """
@@ -705,7 +705,7 @@ class ChessGame:
                             "name": "Lesson Completed!",
                             "description": "You mastered this challenge.",
                             "rarity": "epic",
-                            "icon": "🎓"
+                            "icon": "\U0001f393"
                         })
                     return
                 else:
@@ -716,7 +716,7 @@ class ChessGame:
                         "name": "Incorrect Move",
                         "description": "That is not the solution. Try again!",
                         "rarity": "common",
-                        "icon": "❌"
+                        "icon": "\u274c"
                     })
                     return
 
@@ -835,7 +835,7 @@ class ChessGame:
                         "name": "Lesson Completed!",
                         "description": "You finished reading the lesson.",
                         "rarity": "epic",
-                        "icon": "🎓"
+                        "icon": "\U0001F393"
                     })
                     return
 
@@ -871,7 +871,7 @@ class ChessGame:
             self.showing_game_over = True
 
     def _apply_resolution(self):
-        """Apply resolution change — recalculates entire layout."""
+        """Apply resolution change \u2014 recalculates entire layout."""
         res = RESOLUTIONS.get(self.ui.resolution, (cfg.WINDOW_WIDTH, cfg.WINDOW_HEIGHT))
         w, h = res
         flags = 0
@@ -991,7 +991,7 @@ class ChessGame:
         """Update game logic."""
         self.ui.update_transition()
 
-        # AI move completion — execute with animation
+        # AI move completion \u2014 execute with animation
         if self.ai_thinking and self.ai_move_result is not None:
             move = self.ai_move_result
             self.ai_move_result = None
