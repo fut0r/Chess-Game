@@ -115,10 +115,11 @@ class AIEngine:
         self.max_depth = settings["depth"]
         self.noise = settings["noise"]
 
-    def get_best_move(self, engine):
-        """Get the best move for the current position."""
+    async def get_best_move(self, engine):
+        """Get the best move for the current position (Async for Web)."""
         self.nodes_evaluated = 0
         self.best_move = None
+        import asyncio
         start_time = time.time()
 
         legal_moves = engine.get_all_legal_moves(engine.white_turn)
@@ -143,6 +144,9 @@ class AIEngine:
         beta = float('inf')
 
         for move in legal_moves:
+            # Crucial for Web: give back control to browser between move evaluations
+            await asyncio.sleep(0)
+            
             # Save state
             saved = self._save_state(engine)
 

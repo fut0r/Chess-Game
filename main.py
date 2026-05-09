@@ -764,15 +764,16 @@ class ChessGame:
             self._start_ai_move()
 
     def _start_ai_move(self):
-        """Start AI computation in a background thread."""
+        """Start AI computation in an async task."""
         self.ai_thinking = True
 
-        def ai_compute():
-            move = self.ai.get_best_move(self.engine)
+        async def ai_task():
+            # Artificial delay to feel more natural
+            await asyncio.sleep(0.5)
+            move = await self.ai.get_best_move(self.engine)
             self.ai_move_result = move
 
-        thread = threading.Thread(target=ai_compute, daemon=True)
-        thread.start()
+        asyncio.create_task(ai_task())
 
     def _is_ai_turn(self):
         """Check if it's the AI's turn."""
