@@ -3,7 +3,6 @@ let selectedSquare = null;
 let playerColor = 'w';
 let isOnline = false;
 
-// Piece mapping to assets
 const pieceIcons = {
     'p': 'assets/pieces/black_pawn.png',
     'r': 'assets/pieces/black_rook.png',
@@ -58,6 +57,32 @@ function updateBoard() {
             }
         }
     }
+    updateHistory();
+}
+
+function updateHistory() {
+    const history = game.history({ verbose: true });
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
+    
+    let row = "";
+    history.forEach((move, i) => {
+        if (i % 2 === 0) {
+            row = `${Math.floor(i/2) + 1}. ${move.san}`;
+        } else {
+            row += ` ${move.san}`;
+            const div = document.createElement('div');
+            div.innerText = row;
+            list.appendChild(div);
+            row = "";
+        }
+    });
+    if (row) {
+        const div = document.createElement('div');
+        div.innerText = row;
+        list.appendChild(div);
+    }
+    list.scrollTop = list.scrollHeight;
 }
 
 function onSquareClick(coord) {
@@ -71,17 +96,17 @@ function onSquareClick(coord) {
         const move = game.move({
             from: selectedSquare,
             to: coord,
-            promotion: 'q' // Default to queen for simplicity
+            promotion: 'q'
         });
 
         if (move) {
             updateBoard();
+            highlightLastMove(move);
             selectedSquare = null;
-            clearHighlights();
             checkGameOver();
-            // Trigger AI if in local mode
             if (!isOnline && !game.game_over()) {
-                setTimeout(makeAIMove, 500);
+                startThinking();
+                setTimeout(makeAIMove, 800);
             }
         } else {
             selectedSquare = coord;
@@ -89,7 +114,7 @@ function onSquareClick(coord) {
         }
     } else {
         const piece = game.get(coord);
-        if (piece && piece.color === (game.turn())) {
+        if (piece && piece.color === game.turn()) {
             selectedSquare = coord;
             highlightSquare(coord);
         }
@@ -98,20 +123,32 @@ function onSquareClick(coord) {
 
 function highlightSquare(coord) {
     clearHighlights();
-    document.getElementById(`sq-${coord}`).classList.add('highlight');
+    document.getElementById(`sq-${coord}`).classList.add('selected');
+}
+
+function highlightLastMove(move) {
+    document.querySelectorAll('.square').forEach(sq => sq.classList.remove('last-move'));
+    document.getElementById(`sq-${move.from}`).classList.add('last-move');
+    document.getElementById(`sq-${move.to}`).classList.add('last-move');
 }
 
 function clearHighlights() {
-    document.querySelectorAll('.square').forEach(sq => sq.classList.remove('highlight'));
+    document.querySelectorAll('.square').forEach(sq => sq.classList.remove('selected'));
+}
+
+function startThinking() {
+    const indicator = document.getElementById('thinking-indicator');
+    indicator.style.display = 'block';
 }
 
 async function makeAIMove() {
-    // Basic AI for now: Pick a random legal move
     const moves = game.moves();
     if (moves.length > 0) {
         const move = moves[Math.floor(Math.random() * moves.length)];
-        game.move(move);
+        const result = game.move(move);
+        document.getElementById('thinking-indicator').style.display = 'none';
         updateBoard();
+        highlightLastMove(result);
         checkGameOver();
     }
 }
@@ -137,8 +174,8 @@ async function loadLeaderboard() {
             row.className = 'rank-row';
             let rankHtml = `<span class="rank-num">${index + 1}</span>`;
             if (index === 0) rankHtml = `<span class="rank-circle gold">1</span>`;
-            if (index === 1) rankHtml = `<span class="rank-circle silver">2</span>`;
-            if (index === 2) rankHtml = `<span class="rank-circle bronze">3</span>`;
+            else if (index === 1) rankHtml = `<span class="rank-circle silver">2</span>`;
+            else if (index === 2) rankHtml = `<span class="rank-circle bronze">3</span>`;
             
             row.innerHTML = `
                 ${rankHtml}
