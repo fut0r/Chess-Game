@@ -27,16 +27,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install system dependencies (Linux only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev
+
     - name: Build with PyInstaller
       run: |
-        pyinstaller "Chess Game.spec" --noconfirm
+        python -m PyInstaller "Chess Game.spec" --noconfirm
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Chess-Game-${{ matrix.os }}
-        path: |
-          dist/Chess Game.exe
-          dist/Chess Game.app
-          dist/Chess Game
-        if-no-files-found: ignore
+        path: dist/
