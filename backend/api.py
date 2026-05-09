@@ -15,8 +15,14 @@ import os
 import asyncio
 import uuid
 import random
+import sys
+
+# Ensure root directory is in path for local imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.database import Database
+from game_engine import GameEngine, Move
+from ai_engine import AIEngine
 
 # ---------------------------------------------------------------------------
 # Config
@@ -451,3 +457,48 @@ def _sanitize_user(user):
     """Remove sensitive fields from user dict."""
     return {k: v for k, v in user.items()
             if k not in ("password_hash",)}
+# ---------------------------------------------------------------------------
+# AI Move Endpoint
+# ---------------------------------------------------------------------------
+class AIMoveRequest(BaseModel):
+    board: list  # 2D array of pieces
+    difficulty: str
+    white_turn: bool
+    castling_rights: dict = None
+    en_passant_target: list = None
+
+@app.post("/ai/move")
+async def get_ai_move(req: AIMoveRequest):
+    try:
+        # Create a temporary engine state
+        engine = GameEngine()
+        engine.board = req.board
+        engine.white_turn = req.white_turn
+        
+        # Restore rights if provided
+        if req.castling_rights:
+            engine.castling_rights = req.castling_rights
+        if req.en_passant_target:
+            engine.en_passant_target = tuple(req.en_passant_target)
+
+        # Get the AI brain
+        ai = AIEngine()
+        ai.difficulty = req.difficulty
+        
+        # Calculate best move
+        # We use a wrapper because the engine's AI is now async
+        move = await ai.get_best_move(engine)
+        
+        if move:
+            return {
+                "from": move.from_sq,
+                "to": move.to_sq,
+                "promotion": move.promotion
+            }
+        return {"error": "No legal moves found"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

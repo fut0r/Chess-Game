@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --bg-dark: #121216;
+  --bg-medium: #1e1e26;
+  --gold: #d4a843;
+  --gold-dim: #a08032;
+  --gold-bright: #f1c40f;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0aa;
+  --border: #3c3c46;
+  --panel: rgba(22, 22, 28, 0.9);
+}
+
+@theme {
+  --color-gold: var(--gold);
+  --color-gold-dim: var(--gold-dim);
+  --color-gold-bright: var(--gold-bright);
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-medium: var(--bg-medium);
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dim);
+}
+
+.glass {
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
