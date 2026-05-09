@@ -451,11 +451,13 @@ class ChessGame:
             self.ui.account_error = "Please fill in all fields"
             return
             
-        threading.Thread(
-            target=self.auth.login_or_register,
-            args=(self.ui.account_mode, username, password),
-            daemon=True
-        ).start()
+        async def submit():
+            await asyncio.to_thread(
+                self.auth.login_or_register,
+                self.ui.account_mode, username, password
+            )
+            
+        asyncio.create_task(submit())
 
     def _handle_learn_menu_event(self, event, mouse_pos):
         """Handle learn menu events."""

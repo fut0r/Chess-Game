@@ -6,20 +6,36 @@
     <title>Infiniware Chess - Python Web</title>
     <script src="coi-serviceworker.js"></script>
     <style>
-        body { background: #121216; color: #d4a843; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        #canvas { border: 2px solid #d4a843; box-shadow: 0 0 50px rgba(0,0,0,0.8); cursor: crosshair; }
-        #status { margin-top: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+        body { background: #121216; color: #d4a843; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        #canvas-container { position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; }
+        #canvas { border: 2px solid #d4a843; box-shadow: 0 0 50px rgba(0,0,0,0.8); max-width: 95vw; max-height: 85vh; object-fit: contain; background: black; }
+        #status { margin-top: 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
         .progress { width: 300px; height: 4px; background: #1e1e26; margin-top: 10px; border-radius: 2px; overflow: hidden; }
         #bar { width: 0%; height: 100%; background: #d4a843; transition: width 0.3s; }
+        #fs-btn { margin-top: 15px; background: transparent; border: 1px solid #d4a843; color: #d4a843; padding: 8px 16px; cursor: pointer; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; z-index: 100; }
+        #fs-btn:hover { background: #d4a843; color: #121216; }
     </style>
 </head>
 <body>
-    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+        <button id="fs-btn" onclick="toggleFullScreen()">Go Fullscreen</button>
+    </div>
     <div id="status">Booting Python 3.12...</div>
     <div class="progress"><div id="bar"></div></div>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
     <script>
+        function toggleFullScreen() {
+            const canvas = document.getElementById('canvas');
+            if (!document.fullscreenElement) {
+                canvas.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
         const status = document.getElementById('status');
         const bar = document.getElementById('bar');
 
