@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Game - True Python Web Edition</title>
+    <style>
+        body { background-color: #121216; margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; color: #d4a843; font-family: sans-serif; }
+        #canvas { border: 2px solid #d4a843; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        #status { position: absolute; bottom: 20px; font-size: 14px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div id="status">Waking up the Python Engine...</div>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+
+    <script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js"></script>
+    <script>
+        // The "Anti-Ass" Fix: Manually override the pygbag loader settings
+        window.onload = function() {
+            const status = document.getElementById('status');
+            
+            // Configuration for the Wasm environment
+            const config = {
+                username: "fut0r",
+                app_name: "chess_game",
+                archive: "chess.game.tar.gz",
+                python: "python3.12",
+                entrypoint: "main.py"
+            };
+
+            // Custom boot sequence
+            console.log("Initializing True Python Web Engine...");
+            status.innerText = "Loading Master Assets (this takes a moment)...";
+            
+            // Pygbag's underlying runner
+            if (window.python) {
+                window.python.run(config);
+            }
+        };
+    </script>
+</body>
+</html>

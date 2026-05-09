@@ -1,4 +1,4 @@
-name: Deploy Chess Web
+name: Build True Python Web
 
 on:
   push:
@@ -15,10 +15,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
+
+      - name: Install Pygbag
+        run: pip install pygbag
+
+      - name: Build Game Assets
+        run: |
+          # Create the heavy Wasm assets
+          python3 -m pygbag --build .
+          
+      - name: Fix Loader Bugs
+        run: |
+          # Replace the buggy pygbag loader with our custom Master Loader
+          cp index.html build/web/index.html
+          # Copy CNAME to build folder
+          echo "chess.infiniware.bid" > build/web/CNAME
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -26,7 +41,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: build/web
 
       - name: Deploy to GitHub Pages
         id: deployment
