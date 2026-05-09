@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Infiniware Chess - Python Web</title>
+    <script src="coi-serviceworker.js"></script>
+    <style>
+        body { background: #121216; color: #d4a843; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #canvas { border: 2px solid #d4a843; box-shadow: 0 0 50px rgba(0,0,0,0.8); cursor: crosshair; }
+        #status { margin-top: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+        .progress { width: 300px; height: 4px; background: #1e1e26; margin-top: 10px; border-radius: 2px; overflow: hidden; }
+        #bar { width: 0%; height: 100%; background: #d4a843; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    <div id="status">Booting Python 3.12...</div>
+    <div class="progress"><div id="bar"></div></div>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+    <script>
+        const status = document.getElementById('status');
+        const bar = document.getElementById('bar');
+
+        async function main() {
+            try {
+                status.innerText = "Loading Python Runtime...";
+                bar.style.width = "20%";
+                
+                let pyodide = await loadPyodide();
+                
+                status.innerText = "Installing Pygame-CE...";
+                bar.style.width = "40%";
+                await pyodide.loadPackage("micropip");
+                const micropip = pyodide.pyimport("micropip");
+                await micropip.install("pygame-ce");
+                await micropip.install("requests");
+
+                status.innerText = "Unpacking Game Files...";
+                bar.style.width = "60%";
+                
+                // Fetch the game bundle
+                const response = await fetch("game.zip");
+                const buffer = await response.arrayBuffer();
+                pyodide.unpackArchive(buffer, "zip");
+
+                status.innerText = "Starting Engine...";
+                bar.style.width = "90%";
+                
+                // Set up the canvas for pygame
+                pyodide.canvas.setCanvas2D(document.getElementById('canvas'));
+                
+                // Run the actual main.py
+                await pyodide.runPythonAsync(`
+                    import os
+                    import sys
+                    import asyncio
+                    
+                    # Fix path for imports
+                    sys.path.append(os.getcwd())
+                    
+                    import main
+                    
+                    async def start_game():
+                        game = main.ChessGame()
+                        await game.run()
+                    
+                    asyncio.ensure_future(start_game())
+                `);
+                
+                status.innerText = "Running";
+                bar.style.width = "100%";
+                setTimeout(() => {
+                    status.style.display = 'none';
+                    document.querySelector('.progress').style.display = 'none';
+                }, 2000);
+
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Error: " + err.message;
+                status.style.color = "red";
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
