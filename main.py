@@ -6,11 +6,10 @@ orchestrates all game phases including online play.
 
 import pygame
 import sys
-import threading
 import asyncio
 import config as cfg
 from config import (
-    FPS, GAME_TITLE, BACKEND_API_URL,
+    FPS, VSYNC, GAME_TITLE, BACKEND_API_URL,
     MODE_VS_AI, MODE_VS_PLAYER, MODE_ONLINE, MODE_LESSON,
     RESOLUTIONS, DISPLAY_MODES, SERVERS,
     recalculate_layout,
@@ -34,7 +33,11 @@ class ChessGame:
 
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((cfg.WINDOW_WIDTH, cfg.WINDOW_HEIGHT))
+        # Enable VSync for smooth 60fps performance
+        self.screen = pygame.display.set_mode(
+            (cfg.WINDOW_WIDTH, cfg.WINDOW_HEIGHT),
+            vsync=1 if VSYNC else 0
+        )
         pygame.display.set_caption(GAME_TITLE)
 
         # Try to set icon
@@ -813,6 +816,67 @@ class ChessGame:
         self.chess_clock.reset()
         self.theme_manager.set_theme(self.ui.board_theme)
         self.state_manager.reset()
+        # Display setup with VSync
+        flags = pygame.DOUBLEBUF | pygame.HWSURFACE
+        if cfg.FULLSCREEN:
+            flags |= pygame.FULLSCREEN
+        
+        self.screen = pygame.display.set_mode(
+            (cfg.WINDOW_WIDTH, cfg.WINDOW_HEIGHT), 
+            flags, 
+            vsync=1 if cfg.VSYNC else 0
+        )
+        
+        pygame.display.set_caption(f"Chess Game v{GAME_VERSION}")
+        
+        # Managers
+        self.renderer = Renderer(self.screen)
+        self.ui = UIManager(self.screen, self.renderer)
+        self.sound = SoundManager()
+        self.auth = AuthManager()
+        self.network = NetworkManager(self.ui)
+        self.tracker = AchievementTracker()
+        
+        self.engine = GameEngine()
+        self.ai = AI()
+        self.chess_clock = ChessClock()
+        
+        self.running = True
+        self.paused = False
+        self.ai_thinking = False
+        self.ai_move_result = None
+        
+        self.selected_square = None
+        self.legal_moves = []
+        self.last_move = None
+        self.dragging = False
+        self.drag_piece = None
+        self.drag_from = None
+        self.drag_pos = (0, 0)
+        self.promoting = False
+        self.promotion_move = None
+        self.showing_game_over = False
+        self._active_field = "username"
+
+    async def run(self):
+        """Main game loop optimized for 60 FPS."""
+        clock = pygame.time.Clock()
+        while self.running:
+            dt = clock.tick(60) / 1000.0  # Lock to 60 FPS
+            mouse_pos = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                self._handle_event(event, mouse_pos)
+
+            self._update(dt, mouse_pos)
+            self._draw(mouse_pos)
+            
+            pygame.display.flip()
+            await asyncio.sleep(0)  # Yield for other async tasks
+        
+        pygame.quit()
 
         self.selected_square = None
         self.legal_moves = []

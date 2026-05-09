@@ -179,9 +179,7 @@ class UIManager:
 
         # Draw Gen Z Slang angled text above title
         phrase = self.slang_phrases[self.current_slang_index]
-        # Offset to be "up and slightly left/right" of the title center
-        slang_center = (W // 2 - 100, ty - 10)
-        self.renderer.draw_rotated_text(phrase, 'slang', 32, (0, 120, 255), slang_center, 45)
+        self.renderer.draw_rotated_text(phrase, 'slang', 32, (0, 120, 255), (W // 2, ty - 40), 10)
 
         lw = 180
         ly = int(H * 0.07) + title.get_height() + 8
@@ -203,9 +201,6 @@ class UIManager:
             rect = pygame.Rect(bx, by, btn_w, btn_h)
             self.renderer.draw_button(label, rect, hover=rect.collidepoint(mouse_pos))
             actions[action] = rect
-
-
-
 
         ver = self.renderer.fonts['body_small'].render(
             f"v{GAME_VERSION}  |  {GAME_AUTHOR}", True, COLOR_TEXT_DIM)

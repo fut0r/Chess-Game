@@ -105,33 +105,31 @@ class Renderer:
         self._scale_pieces()
         self._load_fonts()
     def _load_fonts(self):
-        """Load all fonts."""
-        try:
-            self.fonts['title'] = pygame.font.Font(FONT_ULTRALIGHT, 52)
-            self.fonts['subtitle'] = pygame.font.Font(FONT_ULTRALIGHT, 28)
-            self.fonts['heading'] = pygame.font.Font(FONT_BOLD, 24)
-            self.fonts['body'] = pygame.font.Font(FONT_MEDIUM, 18)
-            self.fonts['body_small'] = pygame.font.Font(FONT_MEDIUM, 14)
-            self.fonts['button'] = pygame.font.Font(FONT_MEDIUM, 20)
-            self.fonts['button_small'] = pygame.font.Font(FONT_MEDIUM, 16)
-            self.fonts['timer'] = pygame.font.Font(FONT_BOLD, 32)
-            self.fonts['timer_small'] = pygame.font.Font(FONT_BOLD, 22)
-            self.fonts['coord'] = pygame.font.Font(FONT_MEDIUM, 13)
-            self.fonts['splash_title'] = pygame.font.Font(FONT_ULTRALIGHT, 72)
-            self.fonts['splash_sub'] = pygame.font.Font(FONT_ULTRALIGHT, 24)
-            self.fonts['move_notation'] = pygame.font.Font(FONT_MEDIUM, 15)
-            self.fonts['piece_symbol'] = pygame.font.Font(FONT_BOLD, 16)
-            self.fonts['game_over'] = pygame.font.Font(FONT_BOLD, 42)
-            self.fonts['game_over_sub'] = pygame.font.Font(FONT_ULTRALIGHT, 26)
-            self.fonts['slang'] = pygame.font.Font(FONT_CARVIST, 32)
-        except Exception:
-            # Fallback if font loading fails
-            pass
-            for key in ['title', 'subtitle', 'heading', 'body', 'body_small',
-                         'button', 'button_small', 'timer', 'timer_small',
-                         'coord', 'splash_title', 'splash_sub', 'move_notation',
-                         'piece_symbol', 'game_over', 'game_over_sub']:
-                self.fonts[key] = pygame.font.SysFont('Arial', 20)
+        """Load all fonts at standard sizes."""
+        sizes = [12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 40, 48, 52, 64, 72, 80]
+        self.fonts = {
+            'light': {s: pygame.font.Font(FONT_ULTRALIGHT, s) for s in sizes},
+            'medium': {s: pygame.font.Font(FONT_MEDIUM, s) for s in sizes},
+            'bold': {s: pygame.font.Font(FONT_BOLD, s) for s in sizes},
+            'slang': {s: pygame.font.Font(FONT_CARVIST, s) for s in sizes}
+        }
+        # Legacy mappings for compatibility
+        self.fonts['title'] = self.fonts['light'][52]
+        self.fonts['subtitle'] = self.fonts['light'][28]
+        self.fonts['heading'] = self.fonts['bold'][24]
+        self.fonts['body'] = self.fonts['medium'][18]
+        self.fonts['body_small'] = self.fonts['medium'][14]
+        self.fonts['button'] = self.fonts['medium'][20]
+        self.fonts['button_small'] = self.fonts['medium'][16]
+        self.fonts['timer'] = self.fonts['bold'][32]
+        self.fonts['timer_small'] = self.fonts['bold'][22]
+        self.fonts['coord'] = self.fonts['medium'][14]
+        self.fonts['splash_title'] = self.fonts['light'][72]
+        self.fonts['splash_sub'] = self.fonts['light'][24]
+        self.fonts['move_notation'] = self.fonts['medium'][16]
+        self.fonts['piece_symbol'] = self.fonts['bold'][16]
+        self.fonts['game_over'] = self.fonts['bold'][40]
+        self.fonts['game_over_sub'] = self.fonts['light'][26]
 
     def _load_pieces(self):
         """Load raw piece images from disk and trim them."""
@@ -492,10 +490,27 @@ class Renderer:
         self.draw_button("Main Menu", mr, hover=mr.collidepoint(mp))
         return pr, mr
     def draw_rotated_text(self, text, font_key, size, color, center, angle):
-        """Draw rotated text centered at a position."""
-        font = self.fonts.get(font_key, self.fonts['medium']).get(size, self.fonts['medium'][24])
-        # Render lowercase as requested
-        text_surf = font.render(text.lower(), True, color)
-        rotated_surf = pygame.transform.rotate(text_surf, angle)
-        rect = rotated_surf.get_rect(center=center)
-        self.screen.blit(rotated_surf, rect)
+        """Draw rotated text centered at a position with robust font handling."""
+        try:
+            category = self.fonts.get(font_key)
+            if not category:
+                category = self.fonts['bold']
+                
+            # If category is a dict, find the best size
+            if isinstance(category, dict):
+                available_sizes = sorted(category.keys())
+                if size in category:
+                    font = category[size]
+                else:
+                    closest = min(available_sizes, key=lambda x: abs(x - size))
+                    font = category[closest]
+            else:
+                # If it's already a Font object (legacy mapping), use it directly
+                font = category
+
+            text_surf = font.render(text, True, color)
+            rotated_surf = pygame.transform.rotate(text_surf, angle)
+            rect = rotated_surf.get_rect(center=center)
+            self.screen.blit(rotated_surf, rect)
+        except Exception as e:
+            print(f"Error drawing rotated text: {e}")

@@ -36,6 +36,7 @@ BACKGROUND_IMAGE = os.path.join(ASSETS_DIR, "background-game.jpg")
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
 FPS = 60
+VSYNC = True
 GAME_TITLE = "Chess Game"
 GAME_VERSION = "0.3"
 GAME_AUTHOR = "fut0r (Zyad Mohamed)"
